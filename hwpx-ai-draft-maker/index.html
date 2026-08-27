@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Gemini API로 AI 친화적 행정문서 초안을 만들고 HWPX로 저장하는 웹앱" />
+  <title>문서온 · AI 행정문서 스튜디오</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
+  <script src="template-part-1.js" defer></script>
+<script src="template-part-2.js" defer></script>
+<script src="template-part-3.js" defer></script>
+<script src="template-part-4.js" defer></script>
+<script src="template-part-5.js" defer></script>
+  <script src="app-part-1.js" defer></script>
+  <script src="app-part-2.js" defer></script>
+  <script src="app-part-3.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="문서온 홈">
+        <span class="brand-symbol" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6.5 3.5h7.8L18 7.2v13.3H6.5z"/><path d="M14 3.8v3.7h3.7M9 11h6M9 14h6M9 17h4"/></svg>
+        </span>
+        <span class="brand-copy"><strong>문서온</strong><small>AI 행정문서 스튜디오</small></span>
+      </a>
+
+      <div class="process-strip" aria-label="문서 생성 단계">
+        <div class="process-item active"><span>1</span><b>정보 입력</b></div>
+        <i></i>
+        <div class="process-item"><span>2</span><b>AI 초안</b></div>
+        <i></i>
+        <div class="process-item"><span>3</span><b>검토·수정</b></div>
+        <i></i>
+        <div class="process-item"><span>4</span><b>HWPX 저장</b></div>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn btn-subtle" id="sampleBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16v13H4z"/><path d="M8 9h8M8 12h8M8 15h5"/></svg>
+          예시 불러오기
+        </button>
+        <button class="btn btn-subtle icon-only" id="resetBtn" type="button" title="새 문서" aria-label="새 문서">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12a7 7 0 1 0 2-4.9"/><path d="M5 4v5h5"/></svg>
+        </button>
+        <button class="btn btn-download" id="downloadBtn" type="button" disabled>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v10M8 10l4 4 4-4M5 19h14"/></svg>
+          HWPX 저장
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="composer-panel">
+        <section class="welcome-card">
+          <div class="welcome-badge"><span></span> 행정문서 AI 작성</div>
+          <h1>핵심 내용만 입력하면<br><strong>공공기관 문서 초안</strong>으로 정리합니다.</h1>
+          <p>행안부 AI 친화 문서 원칙을 반영해 구조를 잡고, 실제 한글 문서 형식으로 저장합니다.</p>
+          <div class="welcome-metrics">
+            <span><b>4</b> 문서 유형</span>
+            <span><b>5</b> 참고 형식</span>
+            <span><b>HWPX</b> 바로 저장</span>
+          </div>
+        </section>
+
+        <details class="settings-card">
+          <summary>
+            <span class="summary-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/><path d="M19 12a7.8 7.8 0 0 0-.1-1l2-1.5-2-3.4-2.5 1A8 8 0 0 0 14.8 6l-.4-2.7h-4.8L9.2 6a8 8 0 0 0-1.6 1.1l-2.5-1-2 3.4 2 1.5A7.8 7.8 0 0 0 5 12c0 .3 0 .7.1 1l-2 1.5 2 3.4 2.5-1A8 8 0 0 0 9.2 18l.4 2.7h4.8l.4-2.7a8 8 0 0 0 1.6-1.1l2.5 1 2-3.4-2-1.5c.1-.3.1-.7.1-1Z"/></svg>
+            </span>
+            <span><strong>Gemini 연결 설정</strong><small>API 키와 모델을 설정합니다.</small></span>
+            <span class="connection-pill">직접 연결</span>
+          </summary>
+          <div class="settings-body">
+            <label class="field">
+              <span class="field-label">Gemini API Key</span>
+              <div class="password-wrap">
+                <input id="apiKey" type="password" autocomplete="off" placeholder="AIza..." />
+                <button type="button" class="text-btn" id="toggleKey">보기</button>
+              </div>
+            </label>
+            <div class="two-col">
+              <label class="field">
+                <span class="field-label">모델</span>
+                <input id="modelName" type="text" value="gemini-flash-latest" />
+              </label>
+              <label class="field">
+                <span class="field-label">사고 수준</span>
+                <select id="thinkingLevel">
+                  <option value="low">빠르게</option>
+                  <option value="medium" selected>균형</option>
+                  <option value="high">깊게</option>
+                </select>
+              </label>
+            </div>
+            <div class="security-note">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5.5 6v5c0 4.3 2.8 8.1 6.5 9.5 3.7-1.4 6.5-5.2 6.5-9.5V6L12 3Z"/><path d="m9.5 12 1.7 1.7 3.6-3.8"/></svg>
+              <span>현재 버전은 브라우저 직접 호출 방식입니다. 운영 배포 시 키를 서버 환경변수로 이동하세요.</span>
+            </div>
+          </div>
+        </details>
+
+        <section class="form-section">
+          <div class="section-title-row">
+            <div class="section-num">01</div>
+            <div><h2>어떤 문서를 만들까요?</h2><p>문서 목적에 맞는 구조를 먼저 선택하세요.</p></div>
+          </div>
+
+          <div class="doc-type-grid" id="docTypeGrid">
+            <button type="button" class="doc-type active" data-type="report">
+              <span class="doc-icon blue"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3.5h9l3 3v14H6z"/><path d="M15 3.5v3h3M9 11h6M9 14h6M9 17h4"/></svg></span>
+              <span class="doc-copy"><strong>보고서·계획안</strong><small>요약 · 배경 · 주요내용 · 향후계획</small></span>
+              <span class="select-dot"></span>
+            </button>
+            <button type="button" class="doc-type" data-type="education">
+              <span class="doc-icon mint"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16v13H4z"/><path d="M8 3v6M16 3v6M4 10h16"/></svg></span>
+              <span class="doc-copy"><strong>교육·행사 계획</strong><small>개요 · 세부사항 · 일정표</small></span>
+              <span class="select-dot"></span>
+            </button>
+            <button type="button" class="doc-type" data-type="briefing">
+              <span class="doc-icon violet"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z"/><path d="M8 16v-4M12 16V8M16 16v-6"/></svg></span>
+              <span class="doc-copy"><strong>업무보고·회의자료</strong><small>현황 · 쟁점 · 조치 · 요청사항</small></span>
+              <span class="select-dot"></span>
+            </button>
+            <button type="button" class="doc-type" data-type="press">
+              <span class="doc-icon amber"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4z"/><path d="M7 9h5M7 12h10M7 15h8M15 8h2v2h-2z"/></svg></span>
+              <span class="doc-copy"><strong>보도자료 초안</strong><small>핵심메시지 · 본문 · 기대효과</small></span>
+              <span class="select-dot"></span>
+            </button>
+          </div>
+
+          <div class="field-group surface-card">
+            <label class="field required">
+              <span class="field-label">문서 제목</span>
+              <input id="titleInput" class="input-lg" type="text" placeholder="예) 2026년 AI 행정업무 개선 추진 계획(안)" maxlength="160" />
+            </label>
+            <div class="two-col">
+              <label class="field">
+                <span class="field-label">기관·부서</span>
+                <input id="orgInput" type="text" placeholder="예) 서울특별시교육청 ○○과" />
+              </label>
+              <label class="field">
+                <span class="field-label">보고 방식 / 일자</span>
+                <input id="metaInput" type="text" placeholder="예) 대면보고 / 2026. 9. 1.(화)" />
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-title-row">
+            <div class="section-num">02</div>
+            <div><h2>핵심 내용을 입력하세요.</h2><p>메모하듯 적어도 AI가 행정문서 문장으로 재구성합니다.</p></div>
+          </div>
+          <div class="surface-card facts-card">
+            <label class="field required no-margin">
+              <div class="textarea-head">
+                <span class="field-label">확정된 사실 · 수치 · 일정 · 대상 · 예산</span>
+                <span id="charCount" class="counter">0 / 12,000</span>
+              </div>
+              <textarea id="factsInput" rows="11" maxlength="12000" placeholder="예)
+- 2026년 9월부터 교직원 대상 AI 문서작성 교육 실시
+- 대상: 본청 및 교육지원청 직원 300명
+- 목적: 반복 문서작성 시간 단축
+- 온라인 2회, 대면 1회 운영
+- 총사업비 1,200만원"></textarea>
+            </label>
+            <div class="rule-block">
+              <span>작성 원칙</span>
+              <div class="rule-chips" aria-label="작성 원칙">
+                <button type="button" class="rule-chip active" data-rule="factsOnly"><span>✓</span> 확인된 사실만</button>
+                <button type="button" class="rule-chip active" data-rule="noGuess"><span>✓</span> 추정 금지</button>
+                <button type="button" class="rule-chip active" data-rule="summary"><span>✓</span> 요약 포함</button>
+                <button type="button" class="rule-chip active" data-rule="simpleTable"><span>✓</span> 단순 표만</button>
+                <button type="button" class="rule-chip" data-rule="concise"><span>✓</span> 1~2쪽 간결형</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-title-row">
+            <div class="section-num">03</div>
+            <div><h2>참고자료를 더할까요?</h2><p>기존 문서의 사실·표현·구조를 참고해 초안에 반영합니다.</p></div>
+            <span class="optional-pill">선택</span>
+          </div>
+          <div class="surface-card">
+            <label class="upload-zone" id="uploadZone">
+              <input id="fileInput" type="file" multiple accept=".hwpx,.docx,.txt,.md,.pdf" />
+              <span class="upload-visual">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V5M8 9l4-4 4 4M5 14v5h14v-5"/></svg>
+              </span>
+              <span class="upload-copy"><strong>파일을 끌어놓거나 클릭해서 첨부</strong><small>HWPX · DOCX · PDF · TXT · MD</small></span>
+              <span class="upload-action">파일 선택</span>
+            </label>
+            <div id="fileList" class="file-list"></div>
+            <label class="field instruction-field">
+              <span class="field-label">추가 작성 지시</span>
+              <textarea id="instructionInput" rows="4" placeholder="예) 교육청 내부보고용. 표는 일정표가 필요할 때만 사용하고 개인정보는 제외할 것."></textarea>
+            </label>
+          </div>
+        </section>
+
+        <div class="generate-wrap">
+          <div class="generate-helper">
+            <span class="ai-orb"><svg viewBox="0 0 24 24" fill="none"><path d="m12 3 1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3Z"/><path d="m18.5 14 .8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/></svg></span>
+            <span><strong>입력이 끝났습니다.</strong><small>Gemini가 사실관계를 유지하면서 문서 구조를 설계합니다.</small></span>
+          </div>
+          <button class="generate-btn" id="generateBtn" type="button">
+            <span>AI 문서 초안 만들기</span>
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M14 7l5 5-5 5"/></svg>
+          </button>
+        </div>
+
+        <div id="statusBox" class="status-box" hidden>
+          <div class="status-spinner"></div>
+          <div><strong id="statusTitle">초안을 작성하고 있습니다</strong><span id="statusText">핵심 사실을 문서 구조로 재배치하는 중…</span></div>
+        </div>
+      </aside>
+
+      <section class="preview-panel">
+        <div class="preview-toolbar">
+          <div class="preview-title-wrap">
+            <span class="preview-kicker">OUTPUT</span>
+            <div><strong>문서 미리보기</strong><small>A4 · 한글 문서 기준</small></div>
+          </div>
+          <div class="toolbar-center">
+            <div class="view-switch">
+              <button class="toolbar-tab active" data-view="preview"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg> 미리보기</button>
+              <button class="toolbar-tab" data-view="outline"><svg viewBox="0 0 24 24" fill="none"><path d="m5 7 1.5 1.5L9 6M11 7h8M5 12l1.5 1.5L9 11M11 12h8M5 17l1.5 1.5L9 16M11 17h8"/></svg> 구조·검증</button>
+            </div>
+          </div>
+          <div class="toolbar-actions">
+            <button class="tool-btn" id="copyBtn" type="button" disabled title="텍스트 복사"><svg viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="11" height="11" rx="1"/><path d="M16 8V5H5v11h3"/></svg><span>복사</span></button>
+            <button class="tool-btn" id="jsonBtn" type="button" disabled title="JSON 저장"><svg viewBox="0 0 24 24" fill="none"><path d="M8 5H5v14h3M16 5h3v14h-3M10 8l-2 4 2 4M14 8l2 4-2 4"/></svg><span>JSON</span></button>
+          </div>
+        </div>
+
+        <div class="preview-stage" id="previewView">
+          <div class="desk-label"><span class="status-dot"></span> 편집 가능한 문서 미리보기 <em>텍스트를 클릭해 바로 수정할 수 있습니다.</em></div>
+          <div id="emptyState" class="empty-state">
+            <div class="empty-visual">
+              <div class="empty-paper-back back-1"></div>
+              <div class="empty-paper-back back-2"></div>
+              <div class="empty-paper">
+                <div class="fake-title"></div>
+                <div class="fake-meta"></div>
+                <div class="fake-summary"><span></span><span></span><span></span></div>
+                <div class="fake-heading"></div>
+                <div class="fake-lines"><i></i><i></i><i></i></div>
+                <div class="fake-heading short"></div>
+                <div class="fake-lines"><i></i><i></i></div>
+              </div>
+              <span class="empty-spark spark-a">✦</span>
+              <span class="empty-spark spark-b">✦</span>
+            </div>
+            <h3>작성할 문서가 여기에 나타납니다.</h3>
+            <p>왼쪽에서 문서 유형과 핵심 내용을 입력한 뒤<br><strong>‘AI 문서 초안 만들기’</strong>를 눌러 주세요.</p>
+            <button class="empty-sample-btn" type="button" onclick="document.getElementById('sampleBtn').click()">예시 문서 먼저 보기 →</button>
+          </div>
+          <article id="paper" class="paper" hidden></article>
+        </div>
+
+        <div class="outline-stage" id="outlineView" hidden>
+          <div class="quality-hero">
+            <div><span>AI DOCUMENT CHECK</span><h2>초안 구조와 행정문서 원칙을<br>한 번 더 확인합니다.</h2></div>
+            <div class="quality-badge"><span>자동 점검</span><strong>6</strong><small>개 기준</small></div>
+          </div>
+          <div class="quality-grid">
+            <section class="quality-card">
+              <div class="quality-head"><span>문서 구조</span><strong id="structureScore">-</strong></div>
+              <div id="outlineList" class="outline-list"></div>
+            </section>
+            <section class="quality-card">
+              <div class="quality-head"><span>가이드라인 점검</span><strong id="complianceScore">-</strong></div>
+              <div id="checkList" class="check-list"></div>
+            </section>
+            <section class="quality-card full attention-card">
+              <div class="quality-head"><span>추가 확인 필요</span><strong>담당자 검토</strong></div>
+              <div id="missingList" class="missing-list"></div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
