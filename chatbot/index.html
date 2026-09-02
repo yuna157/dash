@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 챗봇</title>
+    <title>서울시 체육시설 예약 챗봇</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -12,10 +12,10 @@
     <div class="chat-container">
         <header class="chat-header">
             <div class="header-left">
-                <div class="bot-avatar">🤖</div>
+                <div class="bot-avatar">🏟️</div>
                 <div class="header-info">
-                    <h1>AI 챗봇</h1>
-                    <span class="status">OpenRouter · GPT-4o-mini · 🔍 웹검색</span>
+                    <h1>서울시 체육시설 예약 챗봇</h1>
+                    <span class="status" id="statusText">데이터 로딩 중...</span>
                 </div>
             </div>
             <button class="clear-btn" id="clearBtn" title="대화 초기화">🗑️</button>
@@ -23,15 +23,21 @@
 
         <main class="chat-messages" id="chatMessages">
             <div class="welcome-message">
-                <div class="welcome-icon">💬</div>
-                <h2>안녕하세요!</h2>
-                <p>무엇이든 물어보세요. AI가 답변해 드립니다.</p>
+                <div class="welcome-icon">🏅</div>
+                <h2>서울시 체육시설 예약 안내</h2>
+                <p>서울시 공공 체육시설 예약 정보를 자연어로 질문해 보세요!</p>
+                <div class="example-queries">
+                    <button class="example-btn" onclick="askExample(this)">강남구 테니스장 알려줘</button>
+                    <button class="example-btn" onclick="askExample(this)">무료로 이용할 수 있는 축구장</button>
+                    <button class="example-btn" onclick="askExample(this)">지금 접수중인 배드민턴장</button>
+                    <button class="example-btn" onclick="askExample(this)">마포구에 어떤 체육시설이 있어?</button>
+                </div>
             </div>
         </main>
 
         <footer class="chat-input-area">
             <form id="chatForm" class="input-form">
-                <textarea id="userInput" placeholder="메시지를 입력하세요..." rows="1" autofocus></textarea>
+                <textarea id="userInput" placeholder="예: 송파구 수영장 알려줘, 무료 축구장 어디있어?" rows="1" autofocus></textarea>
                 <button type="submit" id="sendBtn" title="전송">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M22 2L11 13"></path>
