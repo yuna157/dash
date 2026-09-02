@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 챗봇</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <div class="header-left">
+                <div class="bot-avatar">🤖</div>
+                <div class="header-info">
+                    <h1>AI 챗봇</h1>
+                    <span class="status">OpenRouter · GPT-4o-mini · 🔍 웹검색</span>
+                </div>
+            </div>
+            <button class="clear-btn" id="clearBtn" title="대화 초기화">🗑️</button>
+        </header>
+
+        <main class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <div class="welcome-icon">💬</div>
+                <h2>안녕하세요!</h2>
+                <p>무엇이든 물어보세요. AI가 답변해 드립니다.</p>
+            </div>
+        </main>
+
+        <footer class="chat-input-area">
+            <form id="chatForm" class="input-form">
+                <textarea id="userInput" placeholder="메시지를 입력하세요..." rows="1" autofocus></textarea>
+                <button type="submit" id="sendBtn" title="전송">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13"></path>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                    </svg>
+                </button>
+            </form>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
